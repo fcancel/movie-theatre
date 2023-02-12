@@ -10,12 +10,12 @@ This is a poorly written application, and we're expecting the candidate to great
 * Focus on testing, and feel free to bring in any testing strategies/frameworks you'd like to implement
 * You're welcome to spend as much time as you like, however, we're expecting that this should take no more than 2 hours
 
-## `movie-theater`
+## `movie-theatre`
 
 ### Current Features
 * Customer can make a reservation for the movie
   * And, system can calculate the ticket fee for customer's reservation
-* Theater have a following discount rules
+* Theatre have a following discount rules
   * 20% discount for the special movie
   * $3 discount for the movie showing 1st of the day
   * $2 discount for the movie showing 2nd of the day
