@@ -1,6 +1,9 @@
 package com.jpmc.theatre.listing;
 
-import com.jpmc.theatre.LocalDateProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jpmc.theatre.pricing.FeeCalculator;
 import lombok.Builder;
 
@@ -30,31 +33,35 @@ public class SchedulePrinter {
                 .append(LINE)
                 .append(NEWLINE);
 
-        List<Showing> showings = schedule.showings();
-        List<DetailedSchedule> detailedSchedules = getDetailedSchedules(showings);
+        List<DetailedSchedule> detailedSchedules = getDetailedSchedules(schedule);
 
-        detailedSchedules.forEach(ds -> {
-            message.append(String.format("%d: %s %s %s $%s", ds.movieSequence(), ds.startTime(), ds.movieTitle(), humanReadableFormat(ds.duration()), ds.price()))
-                    .append(NEWLINE);
-        });
+        detailedSchedules.forEach(ds -> message
+                .append(String.format("%d: %s %s %s $%s", ds.movieSequence(), ds.startTime(), ds.movieTitle(), ds.duration(), ds.price()))
+                .append(NEWLINE));
         message.append(LINE);
 
         return message.toString();
     }
 
-    private List<DetailedSchedule> getDetailedSchedules(List<Showing> showings) {
-        List<DetailedSchedule> detailedSchedules = IntStream.range(0, showings.size()).mapToObj(index -> {
+    public String printJson(Schedule schedule) throws JsonProcessingException {
+        List<DetailedSchedule> detailedSchedules = getDetailedSchedules(schedule);
+        ObjectWriter ow = new ObjectMapper().registerModule(new JavaTimeModule()).writer().withDefaultPrettyPrinter();
+        return ow.writeValueAsString(detailedSchedules);
+    }
+
+    private List<DetailedSchedule> getDetailedSchedules(Schedule schedule) {
+        List<Showing> showings = schedule.showings();
+        return IntStream.range(0, showings.size()).mapToObj(index -> {
             Showing showing = showings.get(index);
 
             return DetailedSchedule.builder()
                     .movieSequence(index + 1)
                     .startTime(showing.getStartTime())
                     .movieTitle(showing.getMovie().getTitle())
-                    .duration(showing.getMovie().getRunningTime())
+                    .duration(humanReadableFormat(showing.getMovie().getRunningTime()))
                     .price(feeCalculator.calculateFee(showing))
                     .build();
         }).toList();
-        return detailedSchedules;
     }
 
     private String humanReadableFormat(Duration duration) {
@@ -63,8 +70,8 @@ public class SchedulePrinter {
 
         return String.format("(%s hour%s %s minute%s)", hour, handlePlural(hour), remainingMin, handlePlural(remainingMin));
     }
-
     // (s) postfix should be added to handle plural correctly
+
     private String handlePlural(long value) {
         if (value == 1) {
             return "";
@@ -74,7 +81,7 @@ public class SchedulePrinter {
     }
 
     @Builder
-    private record DetailedSchedule(int movieSequence, LocalDateTime startTime, String movieTitle, Duration duration,
+    private record DetailedSchedule(int movieSequence, LocalDateTime startTime, String movieTitle, String duration,
                                     BigDecimal price) {
 
     }

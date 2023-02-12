@@ -1,7 +1,9 @@
 package com.jpmc.theatre.listing;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpmc.theatre.film.Movie;
 import com.jpmc.theatre.pricing.FeeCalculator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -11,15 +13,17 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SchedulePrinterTest {
 
+    private Schedule schedule;
 
-    @Test
-    void whenPrintingInSimpleFormatSeeExpectedShowing() {
+    private SchedulePrinter schedulePrinter;
+
+    @BeforeEach
+    void setUp() {
         BigDecimal firstMoviePrice = BigDecimal.TEN;
         Showing firstMovie = Showing.builder()
                 .movie(Movie.builder()
@@ -33,7 +37,7 @@ class SchedulePrinterTest {
         Showing secondMovie = Showing.builder()
                 .movie(Movie.builder()
                         .title("Second Movie")
-                        .runningTime(Duration.ofMinutes(10))
+                        .runningTime(Duration.ofMinutes(1))
                         .ticketPrice(secondMoviePrice)
                         .build())
                 .showStartTime(LocalDateTime.of(2023, 2, 10, 12, 0))
@@ -41,10 +45,15 @@ class SchedulePrinterTest {
         FeeCalculator feeCalculator = mock(FeeCalculator.class);
         when(feeCalculator.calculateFee(firstMovie)).thenReturn(firstMoviePrice);
         when(feeCalculator.calculateFee(secondMovie)).thenReturn(secondMoviePrice);
-        SchedulePrinter schedulePrinter = new SchedulePrinter(feeCalculator);
+        schedulePrinter = new SchedulePrinter(feeCalculator);
 
 
-        Schedule schedule = new Schedule(List.of(firstMovie, secondMovie));
+        schedule = new Schedule(List.of(firstMovie, secondMovie));
+    }
+
+
+    @Test
+    void whenPrintingInSimpleFormatSeeExpectedShowing() {
         String schedulePrint = schedulePrinter.printSimple(schedule);
 
         assertThat(schedulePrint, equalTo(
@@ -52,8 +61,32 @@ class SchedulePrinterTest {
                         Schedule for date: 2023-02-10
                         ===================================================
                         1: 2023-02-10T10:00 First Movie (2 hours 0 minutes) $10
-                        2: 2023-02-10T12:00 Second Movie (0 hours 10 minutes) $1
+                        2: 2023-02-10T12:00 Second Movie (0 hours 1 minute) $1
                         ==================================================="""
         ));
     }
+
+    @Test
+    void whenPrintingInJsonFormatSeeExpectedShowing() throws JsonProcessingException {
+        String schedulePrint = schedulePrinter.printJson(schedule);
+
+        assertThat(schedulePrint, equalTo(
+                """
+                        [ {\r
+                          \"movieSequence\" : 1,\r
+                          \"startTime\" : [ 2023, 2, 10, 10, 0 ],\r
+                          \"movieTitle\" : \"First Movie\",\r
+                          \"duration\" : \"(2 hours 0 minutes)\",\r
+                          \"price\" : 10\r
+                        }, {\r
+                          \"movieSequence\" : 2,\r
+                          \"startTime\" : [ 2023, 2, 10, 12, 0 ],\r
+                          \"movieTitle\" : \"Second Movie\",\r
+                          \"duration\" : \"(0 hours 1 minute)\",\r
+                          \"price\" : 1\r
+                        } ]"""
+        ));
+    }
+
+
 }
