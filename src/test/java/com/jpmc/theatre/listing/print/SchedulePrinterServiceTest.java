@@ -1,7 +1,9 @@
-package com.jpmc.theatre.listing;
+package com.jpmc.theatre.listing.print;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpmc.theatre.film.Movie;
+import com.jpmc.theatre.listing.Schedule;
+import com.jpmc.theatre.listing.Showing;
 import com.jpmc.theatre.pricing.FeeCalculator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,17 +12,18 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class SchedulePrinterTest {
+class SchedulePrinterServiceTest {
 
     private Schedule schedule;
 
-    private SchedulePrinter schedulePrinter;
+    private SchedulePrinterService schedulePrinterService;
 
     @BeforeEach
     void setUp() {
@@ -45,7 +48,7 @@ class SchedulePrinterTest {
         FeeCalculator feeCalculator = mock(FeeCalculator.class);
         when(feeCalculator.calculateFee(firstMovie)).thenReturn(firstMoviePrice);
         when(feeCalculator.calculateFee(secondMovie)).thenReturn(secondMoviePrice);
-        schedulePrinter = new SchedulePrinter(feeCalculator);
+        schedulePrinterService = new SchedulePrinterService(feeCalculator, Map.of(PrinterType.SIMPLE, new SimplePrinter(), PrinterType.JSON, new JsonPrinter()));
 
 
         schedule = new Schedule(List.of(firstMovie, secondMovie));
@@ -54,7 +57,7 @@ class SchedulePrinterTest {
 
     @Test
     void whenPrintingInSimpleFormatSeeExpectedShowing() {
-        String schedulePrint = schedulePrinter.printSimple(schedule);
+        String schedulePrint = schedulePrinterService.printSchedule(PrinterType.SIMPLE, schedule);
 
         assertThat(schedulePrint, equalTo(
                 """
@@ -68,7 +71,7 @@ class SchedulePrinterTest {
 
     @Test
     void whenPrintingInJsonFormatSeeExpectedShowing() throws JsonProcessingException {
-        String schedulePrint = schedulePrinter.printJson(schedule);
+        String schedulePrint = schedulePrinterService.printSchedule(PrinterType.JSON, schedule);
 
         assertThat(schedulePrint, equalTo(
                 """

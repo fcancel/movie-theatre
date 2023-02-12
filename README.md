@@ -1,29 +1,13 @@
 # Introduction
 
-This is a poorly written application, and we're expecting the candidate to greatly improve this code base.
+This application has been redesigned to keep it easily extensible, by making classes with single responsibilities, and open for extension, as this is an initial approach, and it is expected to further evolve and have more features.
 
-## Instructions
-* **Consider this to be your project! Feel free to make any changes**
-* There are several deliberate design, code quality and test issues in the current code, they should be identified and resolved
-* Implement the "New Requirements" below
-* Keep it mind that code quality is very important
-* Focus on testing, and feel free to bring in any testing strategies/frameworks you'd like to implement
-* You're welcome to spend as much time as you like, however, we're expecting that this should take no more than 2 hours
+An example for this would be, what if we have a different Schedule per day? This has been acknowledged and architectured to be able to evolve into that.
 
-## `movie-theatre`
+Same with the sequence of showing, we could need to modify some dates Schedule, and having to manually adjust the order would not be ideal.
 
-### Current Features
-* Customer can make a reservation for the movie
-  * And, system can calculate the ticket fee for customer's reservation
-* Theatre have a following discount rules
-  * 20% discount for the special movie
-  * $3 discount for the movie showing 1st of the day
-  * $2 discount for the movie showing 2nd of the day
-* System can display movie schedule with simple text format
+## Further Improvements
 
-## New Requirements
-* New discount rules; In addition to current rules
-  * Any movies showing starting between 11AM ~ 4pm, you'll get 25% discount
-  * Any movies showing on 7th, you'll get 1$ discount
-  * The discount amount applied only one if met multiple rules; biggest amount one
-* We want to print the movie schedule with simple text & json format
+As the application will likely be a web-API, it has been oriented in Services that have the most uses, as is the Booking service, the Schedule Service and the Schedule Printing Service.
+
+If the application goes this course, a good framework for this would be Spring Framework, and we could use it's Inversion of Control to inject different versions of the objects. This has been taken into account, that is why objects have constructors where Spring can do it's Autowiring
