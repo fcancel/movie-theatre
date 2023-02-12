@@ -1,6 +1,6 @@
 package com.jpmc.theatre.listing;
 
-import com.jpmc.theatre.LocalDateProvider;
+import com.jpmc.theatre.util.LocalDateProvider;
 import com.jpmc.theatre.film.Movie;
 import com.jpmc.theatre.film.Trait;
 
