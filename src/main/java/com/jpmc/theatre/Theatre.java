@@ -1,4 +1,4 @@
-package com.jpmc.theater;
+package com.jpmc.theatre;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -6,12 +6,12 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Theater {
+public class Theatre {
 
     LocalDateProvider provider;
     private List<Showing> schedule;
 
-    public Theater(LocalDateProvider provider) {
+    public Theatre(LocalDateProvider provider) {
         this.provider = provider;
 
         Movie spiderMan = new Movie("Spider-Man: No Way Home", Duration.ofMinutes(90), 12.5, 1);
@@ -68,7 +68,7 @@ public class Theater {
     }
 
     public static void main(String[] args) {
-        Theater theater = new Theater(LocalDateProvider.singleton());
-        theater.printSchedule();
+        Theatre theatre = new Theatre(LocalDateProvider.singleton());
+        theatre.printSchedule();
     }
 }

@@ -1,4 +1,4 @@
-package com.jpmc.theater;
+package com.jpmc.theatre;
 
 import java.time.Duration;
 import java.util.Objects;

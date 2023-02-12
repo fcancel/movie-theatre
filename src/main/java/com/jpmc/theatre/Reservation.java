@@ -1,4 +1,4 @@
-package com.jpmc.theater;
+package com.jpmc.theatre;
 
 public class Reservation {
     private Customer customer;
